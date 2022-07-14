@@ -4,8 +4,15 @@ let cache = new Map();
 
 const readFileSetCache = (fileName, onRead) =>
   readFile(fileName, "utf-8", (err, data) => {
-    cache.set(fileName, data);
-    onRead(data);
+    if (err) onRead(err);
+
+    try {
+      cache.set(fileName, data);
+    } catch (err) {
+      onRead(err);
+    }
+
+    onRead(null, data);
   });
 
 const processTick = (file, onRead) => process.nextTick(() => onRead(file));
@@ -20,8 +27,8 @@ const readFileCache = (fileName, onRead) => {
 const createReadFile = (fileName) => {
   const listeners = [];
 
-  readFileCache(fileName, (result) =>
-    listeners.forEach((listener) => listener(result))
+  readFileCache(fileName, (err, result) =>
+    listeners.forEach((listener) => listener(err, result))
   );
 
   return {
@@ -31,5 +38,5 @@ const createReadFile = (fileName) => {
 
 export const read = (fileName, print) => {
   const readCache = createReadFile(fileName);
-  readCache.registerListener((result) => print(result));
+  readCache.registerListener((err, result) => print(err, result));
 };
