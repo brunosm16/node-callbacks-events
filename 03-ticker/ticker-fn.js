@@ -8,14 +8,14 @@ const callTimeout = (counter, limit, timer, emitter, callback) => {
 
     emitter.emit("tick", limit);
 
-    callTimeout(++counter, limit - 50, timer, emitter, callback);
+    callTimeout(++counter, limit - timer, timer, emitter, callback);
   }, timer);
 };
 
-export const tickerRecursive = (limit, callback) => {
+export const tickerFn = (limit, timer, callback) => {
   const emitter = new EventEmitter();
 
-  callTimeout(0, limit, 30, emitter, callback);
+  callTimeout(0, limit, timer, emitter, callback);
 
   return emitter;
 };
